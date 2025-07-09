@@ -1,13 +1,20 @@
-[gd_scene load_steps=3 format=3 uid="uid://cinhs8x8ad75f"]
+[gd_scene load_steps=5 format=3 uid="uid://cinhs8x8ad75f"]
 
 [ext_resource type="Script" uid="uid://brcdnyujsh3ch" path="res://main.gd" id="1_0xm2m"]
 [ext_resource type="Texture2D" uid="uid://b1rb6bccg6rxr" path="res://icon.svg" id="1_ig7tw"]
+[ext_resource type="Material" path="res://hallo.mtxt" id="3_h2yge"]
+
+[sub_resource type="SphereMesh" id="SphereMesh_0xm2m"]
+material = ExtResource("3_h2yge")
 
 [node name="Main" type="Node3D"]
 script = ExtResource("1_0xm2m")
 
 [node name="GDExample" type="GDExample" parent="."]
-position = Vector2(6.03975, 5.38212)
+position = Vector2(2.1005, 11.0217)
 texture = ExtResource("1_ig7tw")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="."]
+mesh = SubResource("SphereMesh_0xm2m")
 
 [connection signal="position_changed" from="GDExample" to="." method="_on_gd_example_position_changed"]
