@@ -2,3 +2,12 @@
 	path = godot-cpp
 	url = https://github.com/godotengine/godot-cpp
 	branch = 4.4
+[submodule "src/nexus"]
+	path = src/nexus
+	url = https://github.com/cnr-isti-vclab/nexus
+[submodule "src/vcglib"]
+	path = src/vcglib
+	url = https://github.com/cnr-isti-vclab/vcglib.git
+[submodule "src/corto"]
+	path = src/corto
+	url = https://github.com/cnr-isti-vclab/corto.git
