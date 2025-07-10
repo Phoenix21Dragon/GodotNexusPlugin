@@ -1,0 +1,22 @@
+{
+    "configurations": [
+        {
+            "name": "Linux",
+            "includePath": [
+                "${workspaceFolder}/godot-cpp/**",
+                "${workspaceFolder}/src/**",
+                // "${workspaceFolder}/src/nexus/src",
+                // "${workspaceFolder}/src/corto/include",
+                // "${workspaceFolder}/src/vcglib",
+                "/usr/include/x86_64-linux-gnu/qt5/QtCore",
+                "/usr/include"
+            ],
+            "defines": [],
+            "compilerPath": "/usr/bin/clang-20",
+            "cStandard": "c17",
+            "cppStandard": "c++17",
+            "intelliSenseMode": "linux-clang-x64"
+        }
+    ],
+    "version": 4
+}

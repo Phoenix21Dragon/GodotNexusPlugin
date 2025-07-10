@@ -1,8 +1,18 @@
-# import_plugin.gd
 @tool
 extends EditorImportPlugin
 
 enum Presets { DEFAULT }
+
+var magic: int
+var version: int
+var nvert: int
+var nface: int
+var signature: PackedByteArray
+var n_nodes: int
+var n_patches: int
+var n_textures: int
+var sphere_center: Vector3
+var sphere_radius: float
 
 func _get_import_order():
 	return 0
@@ -11,19 +21,19 @@ func _get_priority():
 	return 1.0
 
 func _get_importer_name():
-	return "demos.sillymaterial"
+	return "demos.nexusmodell"
 	
 func _get_visible_name():
-	return "Silly Material"
+	return "Nexus Modell"
 
 func _get_recognized_extensions():
-	return ["mtxt"]
+	return ["nxs"]
 
 func _get_save_extension():
-	return "material"
+	return "nxs"
 
 func _get_resource_type():
-	return "StandardMaterial3D"
+	return "NexusNode"
 
 func _get_preset_count():
 	return Presets.size()
@@ -49,22 +59,72 @@ func _get_option_visibility(path, option_name, options):
 	return true
 
 func _import(source_file, save_path, options, r_platform_variants, r_gen_files):
+	print("IMPORT FILE at path: ", source_file)
+	
 	var file = FileAccess.open(source_file, FileAccess.READ)
 	if file == null:
+		print("Failed to open")
 		return FileAccess.get_open_error()
-
-	var line = file.get_line()
-	
-	var channels = line.split(",")
-	if channels.size() != 3:
-		return ERR_PARSE_ERROR
-
-	var color
-	if options.use_red_anyway:
-		color = Color8(255, 0, 0)
 	else:
-		color = Color8(int(channels[0]), int(channels[1]), int(channels[2]))
+		print("Opened successfully")
 	
-	var material = StandardMaterial3D.new()
-	material.albedo_color = color
-	return ResourceSaver.save(material, "%s.%s" % [save_path, _get_save_extension()])
+	read_header(file)
+	NexusNode.new().loadNexusModell("res://addons/importer_plugin/Kreta_Pithos.obj_23062025_184240.nxs")
+	
+	#var nexus = NexusNode.new()
+	#return ResourceSaver.save(nexus, "%s.%s" % [save_path, _get_save_extension()])
+	return
+
+func read_header(file: FileAccess) -> void:
+	print("Read Header")
+	
+	magic = file.get_32()
+	if magic != 0x4E787320:
+		push_error("Invalid magic number, not a Nexus file")
+		return
+	
+	version = file.get_32()
+	print("    ", "version: ", version)
+	nvert = file.get_64()
+	print("    ", "nvert: ", nvert)
+	nface = file.get_64()
+	print("    ", "nface: ", nface)
+
+	var vertex_attributes = []
+	var face_attributes = []
+	var flags = 0
+
+	# Vertex attributes
+	for i in range(8):
+		var type = file.get_8()
+		var number = file.get_8()
+		vertex_attributes.append({ "type": type, "number": number })
+	#print("    ", vertex_attributes)
+
+	# Face attributes
+	for i in range(8):
+		var type = file.get_8()
+		var number = file.get_8()
+		face_attributes.append({ "type": type, "number": number })
+	#print("    ", face_attributes)
+
+	flags = file.get_32()	
+	print("    ", "flags: ", flags)
+
+	n_nodes = file.get_32()
+	print("    ", "n_nodes: ", n_nodes)
+	n_patches = file.get_32()
+	print("    ", "n_patches: ", n_patches)
+	n_textures = file.get_32()
+	print("    ", "n_textures: ", n_textures)
+
+	var x = file.get_float()
+	var y = file.get_float()
+	var z = file.get_float()
+	var r = file.get_float()
+	sphere_center = Vector3(x, y, z)
+	sphere_radius = r
+	print("    ", "sphere_center: ", sphere_center)
+	print("    ", "sphere_radius: ", sphere_radius)
+
+	print("Header loaded successfully.")
