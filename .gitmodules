@@ -4,7 +4,7 @@
 	branch = 4.4
 [submodule "src/nexus"]
 	path = src/nexus
-	url = https://github.com/cnr-isti-vclab/nexus
+	url = https://github.com/Phoenix21Dragon/nexus_for_godot.git
 [submodule "src/vcglib"]
 	path = src/vcglib
 	url = https://github.com/cnr-isti-vclab/vcglib.git
