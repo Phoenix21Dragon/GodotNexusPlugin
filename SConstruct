@@ -15,10 +15,28 @@ env = SConscript("godot-cpp/SConstruct")
 # tweak this if you want to use different folders, or more folders, to store your source code in.
 env.Append(CPPPATH=["src",
                     "src/nexus/src/common",
-                    "src/vcglib/",
-                    "src/corto/include/",
+                    "src/nexus/src/nxsbuild",
+                    "src/nexus/src/nxszip",
+                    "src/vcglib",
+                    "src/vcglib/eigenlib",
+                    "src/corto/include",
+                    "src/corto/include/corto",
+                    "/usr/include/x86_64-linux-gnu/qt5/QtCore",
                     "/usr/include/x86_64-linux-gnu/qt5"])
-sources = Glob("src/*.cpp")
+env.Append(CXXFLAGS=["-fexceptions"])
+# sources = Glob("src/*.cpp")
+sources = (Glob("src/*.cpp") + 
+           Glob("src/nexus/src/common/nexus.cpp",) + 
+           Glob("src/nexus/src/common/nexusdata.cpp",) +
+           Glob("src/nexus/src/common/qtnexusfile.cpp",) +
+        #    Glob("src/nexus/src/common/controller.cpp",) +
+        #    Glob("src/nexus/src/nxsbuild/*.cpp") +
+        #    Glob("src/nexus/src/nxsedit/*.cpp") +
+        #    Glob("src/nexus/src/nxsview/*.cpp") +
+        #    Glob("src/nexus/src/nxszip/*.cpp") +
+           Glob("src/vcglib/*.cpp") + 
+           Glob("src/corto/*.cpp"))
+
 
 if env["platform"] == "macos":
     library = env.SharedLibrary(

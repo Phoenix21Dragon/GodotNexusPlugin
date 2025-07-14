@@ -1,4 +1,5 @@
 #include <godot_cpp/classes/node3d.hpp>
+#include <godot_cpp/classes/array_mesh.hpp>
 
 namespace godot {
 
@@ -14,7 +15,7 @@ public:
 	NexusNode();
 	~NexusNode();
 
-    void loadNexusModell(String url);
+    Ref<ArrayMesh> loadNexusModell(String url);
 
 	void _process(double delta) override;
 };

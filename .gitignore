@@ -1,4 +1,5 @@
 .venv/
+html/
 *.so
 *.uid
 *.os

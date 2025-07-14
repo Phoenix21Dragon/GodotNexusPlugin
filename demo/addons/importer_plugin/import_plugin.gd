@@ -30,10 +30,10 @@ func _get_recognized_extensions():
 	return ["nxs"]
 
 func _get_save_extension():
-	return "nxs"
+	return "tscn"
 
 func _get_resource_type():
-	return "NexusNode"
+	return "PackedScene"
 
 func _get_preset_count():
 	return Presets.size()
@@ -59,7 +59,9 @@ func _get_option_visibility(path, option_name, options):
 	return true
 
 func _import(source_file, save_path, options, r_platform_variants, r_gen_files):
-	print("IMPORT FILE at path: ", source_file)
+	#print("IMPORT FILE at path: ", source_file)
+	
+	########## Read Header in GDScript ##########
 	
 	var file = FileAccess.open(source_file, FileAccess.READ)
 	if file == null:
@@ -69,11 +71,37 @@ func _import(source_file, save_path, options, r_platform_variants, r_gen_files):
 		print("Opened successfully")
 	
 	read_header(file)
-	NexusNode.new().loadNexusModell("res://addons/importer_plugin/Kreta_Pithos.obj_23062025_184240.nxs")
+	file.close()
 	
-	#var nexus = NexusNode.new()
-	#return ResourceSaver.save(nexus, "%s.%s" % [save_path, _get_save_extension()])
-	return
+	########## Read nxs File with Nexus C++ Code ##########	
+	
+	var nexus_node := NexusNode.new()
+	# nexus_node.loadNexusModell("res://addons/importer_plugin/Kreta_Pithos.obj_23062025_184240.nxs")
+	var mesh = nexus_node.loadNexusModell(source_file)
+	# nexus_node.loadNexusModell(source_file)
+	# print("out: ", out)
+	
+	if mesh == null:
+		push_error("MeshInstance konnte nicht geladen werden.")
+		return ERR_CANT_CREATE
+
+	var mesh_instance = MeshInstance3D.new()
+	mesh_instance.mesh = mesh
+
+	# Neue Szene erzeugen mit Node3D als Root
+	var root := Node3D.new()
+	root.name = "ImportedNexusModel"
+	root.add_child(mesh_instance)
+	mesh_instance.owner = root  # Wichtig für PackedScene
+
+	# Szene packen und speichern
+	var scene := PackedScene.new()
+	scene.pack(root)
+
+	var save_result := ResourceSaver.save(scene, "%s.%s" % [save_path, _get_save_extension()])
+	if save_result != OK:
+		push_error("Konnte Szene nicht speichern: %s" % save_result)
+	return save_result
 
 func read_header(file: FileAccess) -> void:
 	print("Read Header")
