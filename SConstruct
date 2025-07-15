@@ -21,8 +21,9 @@ env.Append(CPPPATH=["src",
                     "src/vcglib/eigenlib",
                     "src/corto/include",
                     "src/corto/include/corto",
-                    "/usr/include/x86_64-linux-gnu/qt5/QtCore",
-                    "/usr/include/x86_64-linux-gnu/qt5"])
+                    # "/usr/include/x86_64-linux-gnu/qt5/QtCore",
+                    # "/usr/include/x86_64-linux-gnu/qt5"
+                    ])
 env.Append(CXXFLAGS=["-fexceptions"])
 # sources = Glob("src/*.cpp")
 sources = (Glob("src/*.cpp") + 
