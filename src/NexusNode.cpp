@@ -195,6 +195,7 @@ Ref<ArrayMesh> NexusNode::loadNexusModell(String url) {
 	nexus->loadHeader();
 	nexus->loadIndex();
 	nexus->loadRam(0);
+	nexus->loadRam(1);
 
 	Ref<ArrayMesh> mesh;
 	mesh.instantiate();
@@ -203,6 +204,7 @@ Ref<ArrayMesh> NexusNode::loadNexusModell(String url) {
 
 	// Schritt 1: Alle Patches von Node 0 sammeln
 	nx::Node& node = nexus->nodes[0];
+	nx::Node& node1 = nexus->nodes[1];
 	nx::NodeData& data = nexus->nodedata[0];
 	nx::Signature& sig = nexus->header.signature;
 
@@ -212,11 +214,18 @@ Ref<ArrayMesh> NexusNode::loadNexusModell(String url) {
 	vcg::Point2f* uvs = data.texCoords(sig, nvert);
 	vcg::Point3s* normals = data.normals(sig, nvert);
 
-	UtilityFunctions::print("node.first_patch: ", node.first_patch);
-	UtilityFunctions::print("node.last_patch(): ", node.last_patch());
+	UtilityFunctions::print("function loadNexusModell: url=", url);
 
-	UtilityFunctions::print("node.nvert", node.nvert);
-	UtilityFunctions::print("node.nface", node.nface);
+	for (size_t i = 0; i < 5; i++)
+	{
+		UtilityFunctions::print("    node[", i, "].first_patch: ", node.first_patch);
+		UtilityFunctions::print("    node[", i, "].last_patch(): ", node.last_patch());	
+		UtilityFunctions::print("    node[", i, "].nvert", node.nvert);
+		UtilityFunctions::print("    node[", i, "].nface", node.nface);
+		UtilityFunctions::print("");
+	}
+	
+
 
 	for (uint32_t k = node.first_patch; k < node.last_patch(); k++) {
 		nx::Patch& patch = nexus->patches[k];
@@ -225,7 +234,7 @@ Ref<ArrayMesh> NexusNode::loadNexusModell(String url) {
 		uint32_t next_offset = patch.triangle_offset;
 		uint32_t face_count = next_offset - offset;
 
-		UtilityFunctions::print("Patch ", k, ": offset=", offset, ", next_offset=", next_offset, ", face_count=", face_count);
+		UtilityFunctions::print("    Patch ", k, ": offset=", offset, ", next_offset=", next_offset, ", face_count=", face_count);
 
 		// if (face_count == 0) {
 		// 	continue; // Überspringen
@@ -269,10 +278,11 @@ Ref<ArrayMesh> NexusNode::loadNexusModell(String url) {
 
 		int surface_index = mesh->get_surface_count();
 		mesh->add_surface_from_arrays(Mesh::PRIMITIVE_TRIANGLES, arrays);
+		UtilityFunctions::print("    surface_index", surface_index);
 
-		UtilityFunctions::print("tex_index: ", tex_index);
-		UtilityFunctions::print("tex_index != 0xffffffff: ", (tex_index != 0xffffffff));
-		UtilityFunctions::print("tex_index < nexus->header.n_textures: ", (tex_index < nexus->header.n_textures));
+		UtilityFunctions::print("    tex_index: ", tex_index);
+		UtilityFunctions::print("    tex_index != 0xffffffff: ", (tex_index != 0xffffffff));
+		UtilityFunctions::print("    tex_index < nexus->header.n_textures: ", (tex_index < nexus->header.n_textures));
 
 		// Schritt 2: Textur laden und Material zuweisen
 		if (tex_index != 0xffffffff && tex_index < nexus->header.n_textures) {
@@ -282,73 +292,44 @@ Ref<ArrayMesh> NexusNode::loadNexusModell(String url) {
 			if (texture_cache.find(tex_index) != texture_cache.end()) {
 				texture = texture_cache[tex_index];
 			} else {
-				// nx::TextureData& tex_data = nexus->texturedata[tex_index];
-				// if (!tex_data.memory) {
-				// 	UtilityFunctions::printerr("Tex index ", tex_index, " hat kein gültiges Speicherabbild (memory=nullptr).");
-				// 	continue;
-				// }
-
-				// int tex_size = tex_data.width * tex_data.height * 4;
-				// PackedByteArray byte_array;
-				// byte_array.resize(tex_size);
-				// memcpy(byte_array.ptrw(), tex_data.memory, tex_size);
-
-				// UtilityFunctions::print("Byte array size: ", byte_array.size());
-
-				// String temp_path = "user://temp_texture_" + String::num(tex_index) + ".jpg";
-				// FileAccess* file = FileAccess::open(temp_path, FileAccess::WRITE);
-				// file->store_buffer(byte_array);
-				// file->close();
-
-				// Ref<Image> image;
-				// image.instantiate();
-				// Error err = image->load(temp_path);
-				// if (err != OK) {
-				// 	UtilityFunctions::printerr("Fehler beim Laden von Textur ", tex_index, ": ", err);
-				// 	continue;
-				// }
-
-
-				// Ref<Image> image;
-				// image.instantiate();
-				// image->create_from_data(tex_data.width, tex_data.height, false, Image::FORMAT_RGBA8, byte_array);
-
-				// texture.instantiate();
-				// texture->create_from_image(image);
-				// texture_cache[tex_index] = texture;
-
+				
 				// Schritt 1: JPEG-Daten aus Nexus extrahieren
 				nx::TextureData& tex_data = nexus->texturedata[tex_index];
-				// int tex_size = tex_data.width * tex_data.height * 4; 
-				int tex_size = nexus->textures[tex_index].getSize();
-				UtilityFunctions::print("tex_size: ", tex_size);
-
+				
+				if (!tex_data.memory) {
+					UtilityFunctions::printerr("Tex index ", tex_index, " hat kein gültiges Speicherabbild (memory=nullptr).");
+					continue;
+				}
+				
+				int tex_size = tex_data.width * tex_data.height * 4; 
+				UtilityFunctions::print("    tex_size: ", tex_size);
+				
 				PackedByteArray byte_array;
 				byte_array.resize(tex_size); // Verwende tatsächliche JPEG-Größe
 				memcpy(byte_array.ptrw(), tex_data.memory, tex_size);
-
+				
 				// Schritt 2: Temporäre Datei schreiben
 				String temp_path = "user://nexus_texture_" + itos(tex_index) + ".jpg";
 				Ref<FileAccess> file = FileAccess::open(temp_path, FileAccess::WRITE);
 				file->store_buffer(byte_array);
 				file->close();
-
+				
 				// Schritt 3: Image laden
 				Ref<Image> image;
 				image.instantiate();
-				Error err = image->load(temp_path);
-				if (err != OK || image->is_empty()) {
-					UtilityFunctions::printerr("Fehler beim Laden von Textur ", tex_index);
-					continue;
-				}
+
+				image->create_from_data(tex_data.width, tex_data.height, false, Image::FORMAT_RGBA8, byte_array);
+
+				// Error err = image->load(temp_path);
+				// if (err != OK || image->is_empty()) {
+				// 	UtilityFunctions::printerr("Fehler beim Laden von Textur ", tex_index);
+				// 	continue;
+				// }
 
 				// Schritt 4: ImageTexture erstellen
-				// Ref<ImageTexture> texture;
 				texture.instantiate();
 				texture->create_from_image(image);
 				texture_cache[tex_index] = texture;
-
-
 			}
 
 			// Material erstellen

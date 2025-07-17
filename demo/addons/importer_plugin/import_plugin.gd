@@ -63,15 +63,15 @@ func _import(source_file, save_path, options, r_platform_variants, r_gen_files):
 	
 	########## Read Header in GDScript ##########
 	
-	var file = FileAccess.open(source_file, FileAccess.READ)
-	if file == null:
-		print("Failed to open")
-		return FileAccess.get_open_error()
-	else:
-		print("Opened successfully")
-	
-	read_header(file)
-	file.close()
+	#var file = FileAccess.open(source_file, FileAccess.READ)
+	#if file == null:
+		#print("Failed to open")
+		#return FileAccess.get_open_error()
+	#else:
+		#print("Opened successfully")
+	#
+	#read_header(file)
+	#file.close()
 	
 	########## Read nxs File with Nexus C++ Code ##########	
 	

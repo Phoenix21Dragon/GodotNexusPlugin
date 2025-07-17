@@ -1,5 +1,8 @@
-[gd_scene format=3 uid="uid://cdi7epxokpbqr"]
+[gd_scene load_steps=2 format=3 uid="uid://cdi7epxokpbqr"]
+
+[ext_resource type="PackedScene" uid="uid://c0qtid44yx7oi" path="res://addons/importer_plugin/landesausstellung-qsn-model-11M-10x4k.obj_23062025_184240.nxs" id="1_ig7tw"]
 
 [node name="Node3D" type="Node3D"]
 
-[node name="NexusNode" type="NexusNode" parent="."]
+[node name="ImportedNexusModel" parent="." instance=ExtResource("1_ig7tw")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -3.52508, 0, -7.98115)
