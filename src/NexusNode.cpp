@@ -187,25 +187,40 @@ void NexusNode::_process(double delta) {
 
 Ref<ArrayMesh> NexusNode::loadNexusModell(String url) {
 	url = url.replace("res:/", ".");
-
+	UtilityFunctions::print("function loadNexusModell: url=", url);
+	
 	nx::Nexus* nexus = new nx::Nexus();
 	nexus->filename = std::string(url.utf8().get_data());
 	nexus->file->setFileName(url.utf8().get_data());
 	nexus->file->open(nx::NexusFile::Read);
 	nexus->loadHeader();
 	nexus->loadIndex();
-	nexus->loadRam(0);
-	nexus->loadRam(1);
+	// nexus->loadRam(0);
+	// nexus->loadRam(1);
+	for (size_t i = 0; i < 5; i++)
+	{
+		nexus->loadRam(i);
+	}
+	
+	UtilityFunctions::print("\nNode Infos:");
+	for (size_t i = 0; i < 5; i++)
+	{
+		UtilityFunctions::print("    node[", i, "].first_patch: ", nexus->nodes[i].first_patch);
+		UtilityFunctions::print("    node[", i, "].last_patch(): ", nexus->nodes[i].last_patch());
+		UtilityFunctions::print("    node[", i, "].offset", nexus->nodes[i].offset);	
+		UtilityFunctions::print("    node[", i, "].nvert", nexus->nodes[i].nvert);
+		UtilityFunctions::print("    node[", i, "].nface", nexus->nodes[i].nface);
+		UtilityFunctions::print("");
+	}
+	
 
 	Ref<ArrayMesh> mesh;
 	mesh.instantiate();
 
-	std::map<uint32_t, Ref<ImageTexture>> texture_cache;
+	int load_node = 2;
 
-	// Schritt 1: Alle Patches von Node 0 sammeln
-	nx::Node& node = nexus->nodes[0];
-	nx::Node& node1 = nexus->nodes[1];
-	nx::NodeData& data = nexus->nodedata[0];
+	nx::Node& node = nexus->nodes[load_node];
+	nx::NodeData& data = nexus->nodedata[load_node];
 	nx::Signature& sig = nexus->header.signature;
 
 	uint32_t nvert = node.nvert;
@@ -214,27 +229,16 @@ Ref<ArrayMesh> NexusNode::loadNexusModell(String url) {
 	vcg::Point2f* uvs = data.texCoords(sig, nvert);
 	vcg::Point3s* normals = data.normals(sig, nvert);
 
-	UtilityFunctions::print("function loadNexusModell: url=", url);
 
-	for (size_t i = 0; i < 5; i++)
-	{
-		UtilityFunctions::print("    node[", i, "].first_patch: ", node.first_patch);
-		UtilityFunctions::print("    node[", i, "].last_patch(): ", node.last_patch());	
-		UtilityFunctions::print("    node[", i, "].nvert", node.nvert);
-		UtilityFunctions::print("    node[", i, "].nface", node.nface);
-		UtilityFunctions::print("");
-	}
-	
-
-
+	UtilityFunctions::print("\nLOAD GEOMETRY of Node: ", load_node);	
+	uint32_t offset = node.offset;
 	for (uint32_t k = node.first_patch; k < node.last_patch(); k++) {
 		nx::Patch& patch = nexus->patches[k];
 		uint32_t tex_index = patch.texture;
-		uint32_t offset = 0;
 		uint32_t next_offset = patch.triangle_offset;
 		uint32_t face_count = next_offset - offset;
 
-		UtilityFunctions::print("    Patch ", k, ": offset=", offset, ", next_offset=", next_offset, ", face_count=", face_count);
+		UtilityFunctions::print("Patch ", k, ": offset=", offset, ", next_offset=", next_offset, ", face_count=", face_count);
 
 		// if (face_count == 0) {
 		// 	continue; // Überspringen
@@ -278,59 +282,55 @@ Ref<ArrayMesh> NexusNode::loadNexusModell(String url) {
 
 		int surface_index = mesh->get_surface_count();
 		mesh->add_surface_from_arrays(Mesh::PRIMITIVE_TRIANGLES, arrays);
-		UtilityFunctions::print("    surface_index", surface_index);
+		UtilityFunctions::print("    surface_index: ", surface_index);
 
 		UtilityFunctions::print("    tex_index: ", tex_index);
 		UtilityFunctions::print("    tex_index != 0xffffffff: ", (tex_index != 0xffffffff));
 		UtilityFunctions::print("    tex_index < nexus->header.n_textures: ", (tex_index < nexus->header.n_textures));
 
+		UtilityFunctions::print("\n    LOAD TEXTURES");
 		// Schritt 2: Textur laden und Material zuweisen
 		if (tex_index != 0xffffffff && tex_index < nexus->header.n_textures) {
-			Ref<ImageTexture> texture;
+				
+			nx::TextureData& tex_data = nexus->texturedata[tex_index];
 			
-			// Cache prüfen
-			if (texture_cache.find(tex_index) != texture_cache.end()) {
-				texture = texture_cache[tex_index];
-			} else {
-				
-				// Schritt 1: JPEG-Daten aus Nexus extrahieren
-				nx::TextureData& tex_data = nexus->texturedata[tex_index];
-				
-				if (!tex_data.memory) {
-					UtilityFunctions::printerr("Tex index ", tex_index, " hat kein gültiges Speicherabbild (memory=nullptr).");
-					continue;
-				}
-				
-				int tex_size = tex_data.width * tex_data.height * 4; 
-				UtilityFunctions::print("    tex_size: ", tex_size);
-				
-				PackedByteArray byte_array;
-				byte_array.resize(tex_size); // Verwende tatsächliche JPEG-Größe
-				memcpy(byte_array.ptrw(), tex_data.memory, tex_size);
-				
-				// Schritt 2: Temporäre Datei schreiben
-				String temp_path = "user://nexus_texture_" + itos(tex_index) + ".jpg";
-				Ref<FileAccess> file = FileAccess::open(temp_path, FileAccess::WRITE);
-				file->store_buffer(byte_array);
-				file->close();
-				
-				// Schritt 3: Image laden
-				Ref<Image> image;
-				image.instantiate();
-
-				image->create_from_data(tex_data.width, tex_data.height, false, Image::FORMAT_RGBA8, byte_array);
-
-				// Error err = image->load(temp_path);
-				// if (err != OK || image->is_empty()) {
-				// 	UtilityFunctions::printerr("Fehler beim Laden von Textur ", tex_index);
-				// 	continue;
-				// }
-
-				// Schritt 4: ImageTexture erstellen
-				texture.instantiate();
-				texture->create_from_image(image);
-				texture_cache[tex_index] = texture;
+			UtilityFunctions::print("    tex_data.width: ", tex_data.width);
+			UtilityFunctions::print("    tex_data.height: ", tex_data.height);
+			
+			if (!tex_data.memory) {
+				UtilityFunctions::printerr("Tex index ", tex_index, " hat kein gültiges Speicherabbild (memory=nullptr).");
+				continue;
 			}
+			uint64_t begin = nexus->textures[tex_index].getBeginOffset();
+			uint64_t end = nexus->textures[tex_index].getEndOffset();
+			int tex_size = end - begin;
+			// int tex_size = tex_data.width * tex_data.height * 4; 
+			UtilityFunctions::print("    tex_size: ", tex_size);
+			
+			PackedByteArray byte_array;
+			byte_array.resize(tex_size); // Verwende tatsächliche JPEG-Größe
+			memcpy(byte_array.ptrw(), tex_data.memory, tex_size);
+			
+			Ref<Image> image;
+			image.instantiate();
+
+			Error err = image->load_jpg_from_buffer(byte_array);
+			if (err != OK || image->is_empty()) {
+				UtilityFunctions::printerr("Fehler beim Laden des JPEG aus Speicher für tex_index: ", tex_index);
+			}
+			UtilityFunctions::print("    image_jpg->get_width(): ", image->get_width());
+			UtilityFunctions::print("    image_jpg->get_height(): ", image->get_height());
+
+			image->save_jpg("res://nexus_texture_" + itos(tex_index) + "_from_image.jpg");
+
+			Ref<ImageTexture> texture;
+			texture.instantiate();
+			texture->create_from_image(image);
+
+			UtilityFunctions::print("    Image Format: ", texture->get_format());
+			UtilityFunctions::print("    texture->get_width(): ", texture->get_width());
+			UtilityFunctions::print("    texture->get_height(): ", texture->get_height());
+			UtilityFunctions::print("");
 
 			// Material erstellen
 			Ref<StandardMaterial3D> material;
@@ -338,6 +338,8 @@ Ref<ArrayMesh> NexusNode::loadNexusModell(String url) {
 			material->set_texture(StandardMaterial3D::TEXTURE_ALBEDO, texture);
 			mesh->surface_set_material(surface_index, material);
 		}
+
+		offset = next_offset;
 	}
 
 	return mesh;
