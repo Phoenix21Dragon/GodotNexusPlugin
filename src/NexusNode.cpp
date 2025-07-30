@@ -19,7 +19,8 @@
 using namespace godot;
 
 void NexusNode::_bind_methods() {
-	ClassDB::bind_method(D_METHOD("loadNexusModell", "url"), &NexusNode::loadNexusModell);
+	ClassDB::bind_method(D_METHOD("loadNexusNode", "url", "node_index"), &NexusNode::loadNexusNode);
+	ClassDB::bind_method(D_METHOD("openNexusModell", "url"), &NexusNode::openNexusModell);
 }
 
 NexusNode::NexusNode() {
@@ -34,193 +35,32 @@ void NexusNode::_process(double delta) {
 	
 }
 
-// Ref<ArrayMesh> NexusNode::loadNexusModell(String url){
-
-// 	url = url.replace("res:/", ".");
-	
-// 	nx::Nexus* nexus = new nx::Nexus();
-// 	nexus->filename = std::string(url.utf8().get_data());
-// 	nexus->file->setFileName(url.utf8().get_data());
-// 	nexus->file->open(nx::NexusFile::Read);
-// 	nexus->loadHeader();
-// 	UtilityFunctions::print("magic: ", nexus->header.magic);
-// 	UtilityFunctions::print("version: ", nexus->header.version);
-// 	UtilityFunctions::print("nvert: ", nexus->header.nvert);
-// 	UtilityFunctions::print("nface: ", nexus->header.nface);
-// 	UtilityFunctions::print("n_nodes: ", nexus->header.n_nodes);
-// 	UtilityFunctions::print("n_patches: ", nexus->header.n_patches);
-// 	UtilityFunctions::print("n_textures: ", nexus->header.n_textures);
-	
-// 	nexus->loadIndex();
-// 	// UtilityFunctions::print("nexus->nodes[0].offset: ", nexus->nodes[0].offset);
-// 	// UtilityFunctions::print("nexus->nodes[0].getBeginOffset: ", nexus->nodes[0].getBeginOffset());
-// 	// UtilityFunctions::print("nexus->nodes[0].getEndOffset: ", nexus->nodes[0].getEndOffset());
-// 	// UtilityFunctions::print("nexus->nodes[0].getSize: ", nexus->nodes[0].getSize());
-
-// 	// UtilityFunctions::print("nexus->nodes[1].offset: ", nexus->nodes[1].offset);
-// 	// UtilityFunctions::print("nexus->nodes[1].getBeginOffset: ", nexus->nodes[1].getBeginOffset());
-// 	// UtilityFunctions::print("nexus->nodes[1].getEndOffset: ", nexus->nodes[1].getEndOffset());
-// 	// UtilityFunctions::print("nexus->nodes[1].getSize: ", nexus->nodes[1].getSize());
-	
-// 	// UtilityFunctions::print("nexus->nodes[2].offset: ", nexus->nodes[2].offset);
-// 	// UtilityFunctions::print("nexus->nodes[2].getBeginOffset: ", nexus->nodes[2].getBeginOffset());
-// 	// UtilityFunctions::print("nexus->nodes[2].getEndOffset: ", nexus->nodes[2].getEndOffset());
-// 	// UtilityFunctions::print("nexus->nodes[2].getSize: ", nexus->nodes[2].getSize());
-	
-// 	// UtilityFunctions::print("nexus->patches->texture: ", nexus->patches->texture);
-// 	// UtilityFunctions::print("nexus->textures->offset: ", nexus->textures->offset);
-
-// 	nexus->loadRam(0);
-
-// 	nx::NodeData& node_data = nexus->nodedata[0];
-// 	nx::Node& node = nexus->nodes[0];
-
-// 	uint32_t nvert = node.nvert;
-// 	uint32_t nface = node.nface;
-
-// 	vcg::Point3f* coords = node_data.coords();
-// 	vcg::Point2f* uvs = node_data.texCoords(nexus->header.signature, nvert);
-// 	vcg::Point3s* normals = node_data.normals(nexus->header.signature, nvert);
-// 	uint16_t* indices = node_data.faces(nexus->header.signature, nvert);
-
-// 	PackedVector3Array godot_vertices;
-// 	PackedVector3Array godot_normals;
-// 	PackedVector2Array godot_uvs;
-// 	PackedInt32Array godot_indices;
-
-// 	UtilityFunctions::print("coords[0].X(): ", coords[0].X());
-// 	UtilityFunctions::print("coords[1].X(): ", coords[1].X());
-// 	UtilityFunctions::print("coords[2].X(): ", coords[2].X());
-
-// 	for (uint32_t i = 0; i < nvert; ++i) {
-// 		godot_vertices.push_back(Vector3(coords[i].X(), coords[i].Y(), coords[i].Z()));
-// 		if (normals)
-// 			godot_normals.push_back(Vector3(normals[i].X(), normals[i].Y(), normals[i].Z()));
-// 		if (uvs)
-// 			godot_uvs.push_back(Vector2(uvs[i].X(), uvs[i].Y()));
-// 	}
-
-// 	for (uint32_t i = 0; i < nface * 3; ++i) {
-// 		godot_indices.push_back(indices[i]);
-// 	}
-
-// 	Array arrays;
-// 	arrays.resize(Mesh::ARRAY_MAX);
-// 	arrays[Mesh::ARRAY_VERTEX] = godot_vertices;
-// 	arrays[Mesh::ARRAY_NORMAL] = godot_normals;
-// 	arrays[Mesh::ARRAY_TEX_UV] = godot_uvs;
-// 	arrays[Mesh::ARRAY_INDEX] = godot_indices;
-
-// 	Ref<ArrayMesh> mesh;
-// 	mesh.instantiate();
-// 	UtilityFunctions::print("IS VALID: ", mesh.is_valid());
-//  	mesh->add_surface_from_arrays(Mesh::PRIMITIVE_TRIANGLES, arrays);
-
-// 	// === TEXTUR LADEN UND ANWENDEN ===
-// 	if (nexus->header.n_textures > 0 && nexus->patches && nexus->patches->texture < nexus->header.n_textures) {
-// 		UtilityFunctions::print("LOADING TEXTURES");
-// 		int texture_index = nexus->patches->texture;
-
-// 		// Lade die Textur (du brauchst loadImageFromData ohne Qt!)
-// 		nx::TextureData& tex_data = nexus->texturedata[texture_index];
-// 		// nexus->loadImageFromData(tex_data, texture_index);
-
-// 		UtilityFunctions::print("Texture index: ", texture_index);
-// 		UtilityFunctions::print("Texture width: ", tex_data.width);
-// 		UtilityFunctions::print("Texture height: ", tex_data.height);
-// 		UtilityFunctions::print("Memory pointer: ", reinterpret_cast<uint64_t>(tex_data.memory));
-
-// 		for (int i = 0; i < 10; ++i) {
-// 			UtilityFunctions::print("Byte ", i, ": ", (uint8_t)tex_data.memory[i]);
-// 		}
-
-// 		// Erzeuge PackedByteArray aus raw RGBA-Daten
-// 		int64_t img_size = tex_data.width * tex_data.height * 4;
-// 		PackedByteArray byte_array;
-// 		byte_array.resize(img_size); // width * height * 4
-
-// 		{
-// 			uint8_t* write_ptr = byte_array.ptrw();
-// 			memcpy(write_ptr, tex_data.memory, img_size);
-// 		}
-
-
-// 		// Erzeuge Image aus dem raw RGBA-Buffer
-// 		Ref<Image> image;
-// 		image.instantiate();
-// 		// image->create_from_data(
-// 		// 	tex_data.width,
-// 		// 	tex_data.height,
-// 		// 	false, // no mipmaps
-// 		// 	Image::FORMAT_RGBA8,
-// 		// 	byte_array
-// 		// );
-
-// 		// // Versuche es mit dem Godot-JPEG-Decoder
-// 		// Error err = image->load_jpg_from_buffer(byte_array);
-// 		// if (err != OK) {
-// 		// 	UtilityFunctions::print("Failed to decode JPEG buffer.");
-// 		// 	return {};
-// 		// }
-
-// 		UtilityFunctions::print("PackedByteArray size: ", byte_array.size());
-// 		UtilityFunctions::print("Image width: ", image->get_width());
-// 		UtilityFunctions::print("Image height: ", image->get_height());
-// 		UtilityFunctions::print("Image empty: ", image->is_empty());
-
-
-// 		// Erzeuge ein Textur-Objekt
-// 		Ref<ImageTexture> texture = ImageTexture::create_from_image(image);
-
-// 		// Erzeuge Material
-// 		Ref<StandardMaterial3D> material;
-// 		material.instantiate();
-// 		material->set_texture(BaseMaterial3D::TEXTURE_ALBEDO, texture);
-
-// 		// Weise Material der ersten Surface zu
-// 		mesh->surface_set_material(0, material);
-// 	}
-
-
-// 	return mesh;
-// }
-
-Ref<ArrayMesh> NexusNode::loadNexusModell(String url) {
+bool NexusNode::openNexusModell(String url) {
 	url = url.replace("res:/", ".");
-	UtilityFunctions::print("function loadNexusModell: url=", url);
+	UtilityFunctions::print("function openNexusModell: url=", url);
 	
-	nx::Nexus* nexus = new nx::Nexus();
-	nexus->filename = std::string(url.utf8().get_data());
-	nexus->file->setFileName(url.utf8().get_data());
-	nexus->file->open(nx::NexusFile::Read);
-	nexus->loadHeader();
-	nexus->loadIndex();
-	// nexus->loadRam(0);
-	// nexus->loadRam(1);
-	for (size_t i = 0; i < 5; i++)
-	{
-		nexus->loadRam(i);
-	}
-	
-	UtilityFunctions::print("\nNode Infos:");
-	for (size_t i = 0; i < 5; i++)
-	{
-		UtilityFunctions::print("    node[", i, "].first_patch: ", nexus->nodes[i].first_patch);
-		UtilityFunctions::print("    node[", i, "].last_patch(): ", nexus->nodes[i].last_patch());
-		UtilityFunctions::print("    node[", i, "].offset", nexus->nodes[i].offset);	
-		UtilityFunctions::print("    node[", i, "].nvert", nexus->nodes[i].nvert);
-		UtilityFunctions::print("    node[", i, "].nface", nexus->nodes[i].nface);
-		UtilityFunctions::print("");
-	}
-	
+	this->nexus = new nx::Nexus();
+	bool success = this->nexus->open(url.utf8().get_data());
+	return success;
+}
+
+Ref<ArrayMesh> NexusNode::loadNexusNode(String url, int node_index) {
+	UtilityFunctions::print("LOADING of Node: ", node_index);
+
+	nexus->loadRam(node_index);
+	UtilityFunctions::print("\nNode Info:");
+	UtilityFunctions::print("    node[", node_index, "].first_patch:  ", nexus->nodes[node_index].first_patch);
+	UtilityFunctions::print("    node[", node_index, "].last_patch(): ", nexus->nodes[node_index].last_patch());
+	UtilityFunctions::print("    node[", node_index, "].offset:       ", nexus->nodes[node_index].offset);	
+	UtilityFunctions::print("    node[", node_index, "].nvert:        ", nexus->nodes[node_index].nvert);
+	UtilityFunctions::print("    node[", node_index, "].nface:        ", nexus->nodes[node_index].nface);
+	UtilityFunctions::print("");	
 
 	Ref<ArrayMesh> mesh;
 	mesh.instantiate();
 
-	int load_node = 2;
-
-	nx::Node& node = nexus->nodes[load_node];
-	nx::NodeData& data = nexus->nodedata[load_node];
+	nx::Node& node = nexus->nodes[node_index];
+	nx::NodeData& data = nexus->nodedata[node_index];
 	nx::Signature& sig = nexus->header.signature;
 
 	uint32_t nvert = node.nvert;
@@ -230,7 +70,7 @@ Ref<ArrayMesh> NexusNode::loadNexusModell(String url) {
 	vcg::Point3s* normals = data.normals(sig, nvert);
 
 
-	UtilityFunctions::print("\nLOAD GEOMETRY of Node: ", load_node);	
+	UtilityFunctions::print("\nLOAD GEOMETRY");	
 	uint32_t offset = node.offset;
 	for (uint32_t k = node.first_patch; k < node.last_patch(); k++) {
 		nx::Patch& patch = nexus->patches[k];
@@ -318,14 +158,17 @@ Ref<ArrayMesh> NexusNode::loadNexusModell(String url) {
 			if (err != OK || image->is_empty()) {
 				UtilityFunctions::printerr("Fehler beim Laden des JPEG aus Speicher für tex_index: ", tex_index);
 			}
+			UtilityFunctions::print("    Image Format: ", image->get_format());
 			UtilityFunctions::print("    image_jpg->get_width(): ", image->get_width());
 			UtilityFunctions::print("    image_jpg->get_height(): ", image->get_height());
 
 			image->save_jpg("res://nexus_texture_" + itos(tex_index) + "_from_image.jpg");
 
+			// image = image->load_from_file("res://nexus_texture_" + itos(tex_index) + "_from_image.jpg");
+
 			Ref<ImageTexture> texture;
-			texture.instantiate();
-			texture->create_from_image(image);
+			// texture.instantiate();
+			texture = ImageTexture::create_from_image(image);
 
 			UtilityFunctions::print("    Image Format: ", texture->get_format());
 			UtilityFunctions::print("    texture->get_width(): ", texture->get_width());

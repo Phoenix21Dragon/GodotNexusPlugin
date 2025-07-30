@@ -59,40 +59,28 @@ func _get_option_visibility(path, option_name, options):
 	return true
 
 func _import(source_file, save_path, options, r_platform_variants, r_gen_files):
-	#print("IMPORT FILE at path: ", source_file)
-	
-	########## Read Header in GDScript ##########
-	
-	#var file = FileAccess.open(source_file, FileAccess.READ)
-	#if file == null:
-		#print("Failed to open")
-		#return FileAccess.get_open_error()
-	#else:
-		#print("Opened successfully")
-	#
-	#read_header(file)
-	#file.close()
-	
-	########## Read nxs File with Nexus C++ Code ##########	
-	
-	var nexus_node := NexusNode.new()
-	# nexus_node.loadNexusModell("res://addons/importer_plugin/Kreta_Pithos.obj_23062025_184240.nxs")
-	var mesh = nexus_node.loadNexusModell(source_file)
-	# nexus_node.loadNexusModell(source_file)
-	# print("out: ", out)
-	
-	if mesh == null:
-		push_error("MeshInstance konnte nicht geladen werden.")
-		return ERR_CANT_CREATE
 
-	var mesh_instance = MeshInstance3D.new()
-	mesh_instance.mesh = mesh
+	########## Read nxs File with Nexus C++ Code ##########	
+
+	var nexus_node := NexusNode.new()	
+	var success = nexus_node.openNexusModell(source_file)
+	print("success open: ", success)
 
 	# Neue Szene erzeugen mit Node3D als Root
 	var root := Node3D.new()
 	root.name = "ImportedNexusModel"
-	root.add_child(mesh_instance)
-	mesh_instance.owner = root  # Wichtig für PackedScene
+
+	for node in range(0, 20):
+		var mesh = nexus_node.loadNexusNode(source_file, node)
+		if mesh == null:
+			push_error("MeshInstance konnte nicht geladen werden.")
+			return ERR_CANT_CREATE
+		
+		var mesh_instance = MeshInstance3D.new()
+		mesh_instance.name = "Node_%d" % node
+		mesh_instance.mesh = mesh
+		root.add_child(mesh_instance)
+		mesh_instance.owner = root  # Wichtig für PackedScene
 
 	# Szene packen und speichern
 	var scene := PackedScene.new()
