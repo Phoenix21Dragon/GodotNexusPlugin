@@ -44,7 +44,7 @@ bool NexusNode::openNexusModell(String url) {
 	return success;
 }
 
-Ref<ArrayMesh> NexusNode::loadNexusNode(String url, int node_index) {
+Ref<ArrayMesh> NexusNode::loadNexusNode(int node_index) {
 	UtilityFunctions::print("LOADING of Node: ", node_index);
 
 	nexus->loadRam(node_index);

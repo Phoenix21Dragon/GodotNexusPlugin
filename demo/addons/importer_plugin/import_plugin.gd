@@ -76,7 +76,6 @@ func _import(source_file, save_path, options, r_platform_variants, r_gen_files):
 		
 		var mesh = nexus_node.loadNexusNode(node)
 
-		var mesh = nexus_node.loadNexusNode(source_file, node)
 		if mesh == null:
 			push_error("MeshInstance konnte nicht geladen werden.")
 			return ERR_CANT_CREATE
