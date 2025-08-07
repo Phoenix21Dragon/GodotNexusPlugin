@@ -14,6 +14,8 @@ var n_textures: int
 var sphere_center: Vector3
 var sphere_radius: float
 
+var nexus_node : NexusNode = NexusNode.new()
+
 func _get_import_order():
 	return 0
 
@@ -62,15 +64,18 @@ func _import(source_file, save_path, options, r_platform_variants, r_gen_files):
 
 	########## Read nxs File with Nexus C++ Code ##########	
 
-	var nexus_node := NexusNode.new()	
+	# var nexus_node := NexusNode.new()	
 	var success = nexus_node.openNexusModell(source_file)
 	print("success open: ", success)
 
 	# Neue Szene erzeugen mit Node3D als Root
-	var root := Node3D.new()
+	var root := nexus_node
 	root.name = "ImportedNexusModel"
 
 	for node in range(0, 20):
+		
+		var mesh = nexus_node.loadNexusNode(node)
+
 		var mesh = nexus_node.loadNexusNode(source_file, node)
 		if mesh == null:
 			push_error("MeshInstance konnte nicht geladen werden.")

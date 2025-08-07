@@ -19,7 +19,7 @@
 using namespace godot;
 
 void NexusNode::_bind_methods() {
-	ClassDB::bind_method(D_METHOD("loadNexusNode", "url", "node_index"), &NexusNode::loadNexusNode);
+	ClassDB::bind_method(D_METHOD("loadNexusNode", "node_index"), &NexusNode::loadNexusNode);
 	ClassDB::bind_method(D_METHOD("openNexusModell", "url"), &NexusNode::openNexusModell);
 }
 
@@ -179,6 +179,9 @@ Ref<ArrayMesh> NexusNode::loadNexusNode(String url, int node_index) {
 			Ref<StandardMaterial3D> material;
 			material.instantiate();
 			material->set_texture(StandardMaterial3D::TEXTURE_ALBEDO, texture);
+			material->set_cull_mode(BaseMaterial3D::CullMode::CULL_DISABLED);
+			material->set_uv1_scale(Vector3(1.0, -1.0, 1.0));
+			material->set_shading_mode(BaseMaterial3D::ShadingMode::SHADING_MODE_UNSHADED);
 			mesh->surface_set_material(surface_index, material);
 		}
 
