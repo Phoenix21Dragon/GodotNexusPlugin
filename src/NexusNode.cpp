@@ -10,21 +10,26 @@
 #include <godot_cpp/variant/packed_int32_array.hpp>
 #include <godot_cpp/variant/array.hpp>
 #include <godot_cpp/classes/file_access.hpp>
+
+#include "nexus.h"
 #include "vcg/space/point3.h"
 #include "vcg/space/point2.h"
 
-#include "nexus.h"
 #include <map>
+#include <thread>
 
 using namespace godot;
 
 void NexusNode::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("loadNexusNode", "node_index"), &NexusNode::loadNexusNode);
-	ClassDB::bind_method(D_METHOD("openNexusModell", "url"), &NexusNode::openNexusModell);
+	ClassDB::bind_method(D_METHOD("start_loading", "url"), &NexusNode::start_loading);
+	ClassDB::bind_method(D_METHOD("_on_node_loaded", "mesh"), &NexusNode::_on_node_loaded);
+	ADD_SIGNAL(MethodInfo("node_loaded", PropertyInfo(Variant::OBJECT, "mesh", PROPERTY_HINT_RESOURCE_TYPE, "ArrayMesh")));
 }
 
 NexusNode::NexusNode() {
 	// Initialize any variables here.
+	main_thread_id =  std::this_thread::get_id();
 }
 
 NexusNode::~NexusNode() {
@@ -35,16 +40,38 @@ void NexusNode::_process(double delta) {
 	
 }
 
-bool NexusNode::openNexusModell(String url) {
+void NexusNode::_on_node_loaded(Ref<ArrayMesh> mesh) {
+	
+	UtilityFunctions::print("NexusNode.cpp: _on_node_loaded()");
+	UtilityFunctions::print("VALID mesh? ", mesh.is_valid());
+
+	if (std::this_thread::get_id() == main_thread_id) {
+		UtilityFunctions::print("Läuft im Main-Thread!");
+	} else {
+		UtilityFunctions::print("NICHT im Main-Thread!");
+	}
+
+	if (mesh.is_null()) {
+		UtilityFunctions::printerr("MeshInstance konnte nicht geladen werden");
+	}
+	
+	set_mesh(mesh);	
+}
+
+bool NexusNode::start_loading(String url) {
 	url = url.replace("res:/", ".");
 	UtilityFunctions::print("function openNexusModell: url=", url);
 	
 	this->nexus = new nx::Nexus();
 	bool success = this->nexus->open(url.utf8().get_data());
-	return success;
+
+	this->connect("node_loaded", Callable(this, "_on_node_loaded"));
+	worker_thread.instantiate();
+	worker_thread->start(Callable(this, "loadNexusNode").bind(current_node), Thread::Priority::PRIORITY_HIGH);
+	return true;
 }
 
-Ref<ArrayMesh> NexusNode::loadNexusNode(String url, int node_index) {
+Ref<ArrayMesh> NexusNode::loadNexusNode(int node_index) {
 	UtilityFunctions::print("LOADING of Node: ", node_index);
 
 	nexus->loadRam(node_index);
@@ -162,7 +189,7 @@ Ref<ArrayMesh> NexusNode::loadNexusNode(String url, int node_index) {
 			UtilityFunctions::print("    image_jpg->get_width(): ", image->get_width());
 			UtilityFunctions::print("    image_jpg->get_height(): ", image->get_height());
 
-			image->save_jpg("res://nexus_texture_" + itos(tex_index) + "_from_image.jpg");
+			// image->save_jpg("res://nexus_texture_" + itos(tex_index) + "_from_image.jpg");
 
 			// image = image->load_from_file("res://nexus_texture_" + itos(tex_index) + "_from_image.jpg");
 
@@ -186,8 +213,15 @@ Ref<ArrayMesh> NexusNode::loadNexusNode(String url, int node_index) {
 		}
 
 		offset = next_offset;
-	}
+	}	
+	
+	UtilityFunctions::print("NexusNode.cpp: Calling Deferred");
+	call_deferred( "_on_node_loaded", mesh);
+
+	UtilityFunctions::print("NexusNode.cpp: Calling Signal");
+	call_deferred("emit_signal", "node_loaded", mesh);
+
+	UtilityFunctions::print("VALID mesh? ", mesh.is_valid());
 
 	return mesh;
 }
-

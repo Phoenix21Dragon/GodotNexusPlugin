@@ -14,8 +14,6 @@ var n_textures: int
 var sphere_center: Vector3
 var sphere_radius: float
 
-var nexus_node : NexusNode = NexusNode.new()
-
 func _get_import_order():
 	return 0
 
@@ -60,36 +58,20 @@ func _get_import_options(path, preset_index):
 func _get_option_visibility(path, option_name, options):
 	return true
 
-func _import(source_file, save_path, options, r_platform_variants, r_gen_files):
-
-	########## Read nxs File with Nexus C++ Code ##########	
-
-	# var nexus_node := NexusNode.new()	
-	var success = nexus_node.openNexusModell(source_file)
-	print("success open: ", success)
-
-	# Neue Szene erzeugen mit Node3D als Root
-	var root := nexus_node
-	root.name = "ImportedNexusModel"
-
-	for node in range(0, 20):
-		
-		var mesh = nexus_node.loadNexusNode(node)
-
-		var mesh = nexus_node.loadNexusNode(source_file, node)
-		if mesh == null:
-			push_error("MeshInstance konnte nicht geladen werden.")
-			return ERR_CANT_CREATE
-		
-		var mesh_instance = MeshInstance3D.new()
-		mesh_instance.name = "Node_%d" % node
-		mesh_instance.mesh = mesh
-		root.add_child(mesh_instance)
-		mesh_instance.owner = root  # Wichtig für PackedScene
-
+func _import(source_file, save_path, options, r_platform_variants, r_gen_files):	
+	var nexus_node = NexusNode.new()
+	# nexus_node.set_script(load("res://addons/importer_plugin/nexus_node.gd"))
+	nexus_node.name = "ImportedNexusModel"	
+	
+	nexus_node.start_loading(source_file)
+	
+	# var mesh = nexus_node.loadNexusNode(0)
+	
+	# nexus_node.mesh = mesh
+	
 	# Szene packen und speichern
 	var scene := PackedScene.new()
-	scene.pack(root)
+	scene.pack(nexus_node)
 
 	var save_result := ResourceSaver.save(scene, "%s.%s" % [save_path, _get_save_extension()])
 	if save_result != OK:
