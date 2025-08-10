@@ -62,12 +62,14 @@ func _import(source_file, save_path, options, r_platform_variants, r_gen_files):
 	var nexus_node = NexusNode.new()
 	# nexus_node.set_script(load("res://addons/importer_plugin/nexus_node.gd"))
 	nexus_node.name = "ImportedNexusModel"	
+
+	nexus_node.openNexusModell(source_file)	
 	
-	nexus_node.start_loading(source_file)
-	
-	# var mesh = nexus_node.loadNexusNode(0)
-	
-	# nexus_node.mesh = mesh
+	var mesh = nexus_node.loadNexusNode(0)	
+	nexus_node.mesh = mesh
+
+	print("START LOADING WITH THREADS")
+	nexus_node.start_loading()
 	
 	# Szene packen und speichern
 	var scene := PackedScene.new()

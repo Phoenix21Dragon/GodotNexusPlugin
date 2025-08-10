@@ -15,7 +15,8 @@ private:
 
 	nx::Nexus* nexus;
     Ref<Thread> worker_thread;
-    int current_node = 0;
+    int current_node = 2;
+	bool is_mesh_ready = false;
 
 protected:
 	static void _bind_methods();
@@ -25,8 +26,10 @@ public:
 	~NexusNode();
 
 	void _on_node_loaded(Ref<ArrayMesh> mesh);
-    bool start_loading(String url);
+    bool openNexusModell(String url);
+    void start_loading();
 	Ref<ArrayMesh> loadNexusNode(int node_index);
+	void loadNodesAsync();
 
 	void _process(double delta) override;
 };
