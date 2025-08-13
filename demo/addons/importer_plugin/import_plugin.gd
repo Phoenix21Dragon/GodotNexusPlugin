@@ -29,7 +29,7 @@ func _get_visible_name():
 	return "Nexus Modell"
 
 func _get_recognized_extensions():
-	return ["nxs"]
+	return ["nxs", "nxz"]
 
 func _get_save_extension():
 	return "tscn"
@@ -64,7 +64,6 @@ func _import(source_file, save_path, options, r_platform_variants, r_gen_files):
 
 	########## Read nxs File with Nexus C++ Code ##########	
 
-	# var nexus_node := NexusNode.new()	
 	var success = nexus_node.openNexusModell(source_file)
 	print("success open: ", success)
 

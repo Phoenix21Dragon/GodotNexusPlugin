@@ -162,7 +162,7 @@ Ref<ArrayMesh> NexusNode::loadNexusNode(int node_index) {
 			UtilityFunctions::print("    image_jpg->get_width(): ", image->get_width());
 			UtilityFunctions::print("    image_jpg->get_height(): ", image->get_height());
 
-			image->save_jpg("res://nexus_texture_" + itos(tex_index) + "_from_image.jpg");
+			// image->save_jpg("res://nexus_texture_" + itos(tex_index) + "_from_image.jpg");
 
 			// image = image->load_from_file("res://nexus_texture_" + itos(tex_index) + "_from_image.jpg");
 
