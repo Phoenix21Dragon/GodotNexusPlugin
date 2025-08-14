@@ -30,6 +30,7 @@ env.Append(CPPPATH=[
                     "src/nexus/src/common",
                     "src/nexus/src/nxsbuild",
                     "src/nexus/src/nxszip",
+                    "src/nexus/src/nxsview",
                     "src/vcglib",
                     "src/vcglib/eigenlib",
                     ])
@@ -55,7 +56,7 @@ sources = (
     Glob("src/nexus/src/nxszip/meshdecoder.cpp") +
     # Glob("main.cpp") +
     # Glob("gl_nxsview.cpp") +
-    Glob("scene.cpp") +
+    Glob("src/nexus/src/nxsview/scene.cpp") +
     Glob("src/nexus/src/common/qtnexusfile.cpp") +
     Glob("src/corto/src/*.cpp") 
 )

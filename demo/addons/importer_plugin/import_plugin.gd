@@ -100,37 +100,39 @@ func _get_option_visibility(path, option_name, options):
 
 func _import(source_file, save_path, options, r_platform_variants, r_gen_files):
 
-	########## Read nxs File with Nexus C++ Code ##########	
+	nexus_node.init(source_file, options)
 
-	var success = nexus_node.openNexusModell(source_file)
-	print("success open: ", success)
+	# ########## Read nxs File with Nexus C++ Code ##########	
 
-	# Neue Szene erzeugen mit Node3D als Root
-	var root := nexus_node
-	root.name = "ImportedNexusModel"
+	# var success = nexus_node.openNexusModell(source_file)
+	# print("success open: ", success)
 
-	for node in range(0, 20):
+	# # Neue Szene erzeugen mit Node3D als Root
+	# var root := nexus_node
+	# root.name = "ImportedNexusModel"
+
+	# for node in range(0, 2):
 		
-		var mesh = nexus_node.loadNexusNode(node)
+	# 	var mesh = nexus_node.loadNexusNode(node)
 
-		if mesh == null:
-			push_error("MeshInstance konnte nicht geladen werden.")
-			return ERR_CANT_CREATE
+	# 	if mesh == null:
+	# 		push_error("MeshInstance konnte nicht geladen werden.")
+	# 		return ERR_CANT_CREATE
 		
-		var mesh_instance = MeshInstance3D.new()
-		mesh_instance.name = "Node_%d" % node
-		mesh_instance.mesh = mesh
-		root.add_child(mesh_instance)
-		mesh_instance.owner = root  # Wichtig für PackedScene
+	# 	var mesh_instance = MeshInstance3D.new()
+	# 	mesh_instance.name = "Node_%d" % node
+	# 	mesh_instance.mesh = mesh
+	# 	root.add_child(mesh_instance)
+	# 	mesh_instance.owner = root  # Wichtig für PackedScene
 
-	# Szene packen und speichern
-	var scene := PackedScene.new()
-	scene.pack(root)
+	# # Szene packen und speichern
+	# var scene := PackedScene.new()
+	# scene.pack(root)
 
-	var save_result := ResourceSaver.save(scene, "%s.%s" % [save_path, _get_save_extension()])
-	if save_result != OK:
-		push_error("Konnte Szene nicht speichern: %s" % save_result)
-	return save_result
+	# var save_result := ResourceSaver.save(scene, "%s.%s" % [save_path, _get_save_extension()])
+	# if save_result != OK:
+	# 	push_error("Konnte Szene nicht speichern: %s" % save_result)
+	# return save_result
 
 func read_header(file: FileAccess) -> void:
 	print("Read Header")

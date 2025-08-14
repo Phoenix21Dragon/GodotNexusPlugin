@@ -10,20 +10,25 @@
 #include <godot_cpp/variant/packed_int32_array.hpp>
 #include <godot_cpp/variant/array.hpp>
 #include <godot_cpp/classes/file_access.hpp>
+#include <godot_cpp/variant/dictionary.hpp>
 #include "vcg/space/point3.h"
 #include "vcg/space/point2.h"
 
+#include "scene.h"
+#include "controller.h"
+#include "renderer.h"
 #include "nexus.h"
 #include <map>
 
 using namespace godot;
 
 void NexusNode::_bind_methods() {
-	ClassDB::bind_method(D_METHOD("loadNexusNode", "node_index"), &NexusNode::loadNexusNode);
+	ClassDB::bind_method(D_METHOD("init", "url", "options"), &NexusNode::init);
 	ClassDB::bind_method(D_METHOD("openNexusModell", "url"), &NexusNode::openNexusModell);
+	ClassDB::bind_method(D_METHOD("loadNexusNode", "node_index"), &NexusNode::loadNexusNode);
 }
 
-NexusNode::NexusNode() {
+NexusNode::NexusNode() : extracting(true) {
 	// Initialize any variables here.
 }
 
@@ -32,7 +37,36 @@ NexusNode::~NexusNode() {
 }
 
 void NexusNode::_process(double delta) {
+	// only selected code from GLNxsview::paintEvent()
+
+	scene.update();
+
+	renderer.startFrame();
+
+	for(unsigned int i = 0; i < scene.nodes.size(); i++) {
+		Scene::Node &node = scene.nodes[i];
+
+		renderer.render(node.nexus, extracting);
+	}
+
+	if(extracting)
+		renderer.endFrame();
+}
+
+void NexusNode::init(String url, Dictionary options){
+	url = url.replace("res:/", ".");
 	
+	scene.autopositioning = (bool)options.get("autopositioning", false);
+	scene.load(QStringList(QString::fromUtf8(url.utf8().get_data())), (int)options.get("instances", 1));
+
+	nx::Controller &controller = scene.controller;
+	controller.setRam((quint64)((uint64_t)options.get("ram", 500.0)*(1<<20)));	
+	controller.setGpu((quint64)((uint64_t)options.get("gpu", 500.0)*(1<<20)));	
+	controller.start();
+
+	renderer.setMaxPrimitives((int)((double)options.get("max_number_triangles", 3.0)*(1<<20)));
+	renderer.setError((float)((double)options.get("target_error", 3.0)));
+	renderer.setFps((float)((double)options.get("fps", 30.0)));
 }
 
 bool NexusNode::openNexusModell(String url) {
