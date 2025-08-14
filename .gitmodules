@@ -5,9 +5,12 @@
 [submodule "src/nexus"]
 	path = src/nexus
 	url = https://github.com/Phoenix21Dragon/nexus_for_godot.git
+	ignore = untracked
 [submodule "src/vcglib"]
 	path = src/vcglib
 	url = https://github.com/cnr-isti-vclab/vcglib.git
+	ignore = untracked
 [submodule "src/corto"]
 	path = src/corto
 	url = https://github.com/cnr-isti-vclab/corto.git
+	ignore = untracked
