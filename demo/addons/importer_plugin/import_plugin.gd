@@ -50,10 +50,48 @@ func _get_preset_name(preset_index):
 func _get_import_options(path, preset_index):
 	match preset_index:
 		Presets.DEFAULT:
-			return [{
-					   "name": "use_red_anyway",
-					   "default_value": false
-					}]
+			return [
+				{
+				   "name": "max_number_triangles",
+				   "default_value": 3.0,
+					"property_hint": PROPERTY_HINT_RANGE, 
+				   "hint_string": "0.5,15.0,0.5"
+				},
+				{
+				   "name": "target_error",
+				   "default_value": 3.0,
+					"property_hint": PROPERTY_HINT_RANGE, 
+				   "hint_string": "1,50,1"
+				},
+				{
+				   "name": "ram",
+				   "default_value": 500.0,
+					"property_hint": PROPERTY_HINT_RANGE, 
+				   "hint_string": "100,10000,100"
+				},
+				{
+				   "name": "gpu",
+				   "default_value": 500.0,
+					"property_hint": PROPERTY_HINT_RANGE, 
+				   "hint_string": "100,10000,100"
+				},
+				{
+				   "name": "fps",
+				   "default_value": 30.0,
+					"property_hint": PROPERTY_HINT_RANGE, 
+				   "hint_string": "30.0,120.0,5"
+				},
+				{
+				   "name": "instances",
+				   "default_value": 1,
+					"property_hint": PROPERTY_HINT_RANGE, 
+				   "hint_string": "1,5,1"
+				},
+				{
+				   "name": "autopositioning",
+				   "default_value": false,
+				}
+			]
 		_:
 			return []
 
