@@ -19,7 +19,7 @@ public:
 	~NexusNode();
 
     bool openNexusModell(String url);
-	Ref<ArrayMesh> loadNexusNode(int node_index);
+	Ref<ArrayMesh> loadNexusNode(int node_index, Dictionary options);
 
 	void _process(double delta) override;
 };

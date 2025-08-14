@@ -51,7 +51,7 @@ func _get_import_options(path, preset_index):
 	match preset_index:
 		Presets.DEFAULT:
 			return [{
-					   "name": "use_red_anyway",
+					   "name": "colored_patches",
 					   "default_value": false
 					}]
 		_:
@@ -71,9 +71,9 @@ func _import(source_file, save_path, options, r_platform_variants, r_gen_files):
 	var root := nexus_node
 	root.name = "ImportedNexusModel"
 
-	for node in range(0, 20):
+	for node in range(0, 10):
 		
-		var mesh = nexus_node.loadNexusNode(node)
+		var mesh = nexus_node.loadNexusNode(node, options)
 
 		if mesh == null:
 			push_error("MeshInstance konnte nicht geladen werden.")

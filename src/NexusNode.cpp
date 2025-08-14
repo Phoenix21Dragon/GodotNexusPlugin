@@ -19,7 +19,7 @@
 using namespace godot;
 
 void NexusNode::_bind_methods() {
-	ClassDB::bind_method(D_METHOD("loadNexusNode", "node_index"), &NexusNode::loadNexusNode);
+	ClassDB::bind_method(D_METHOD("loadNexusNode", "node_index", "options"), &NexusNode::loadNexusNode);
 	ClassDB::bind_method(D_METHOD("openNexusModell", "url"), &NexusNode::openNexusModell);
 }
 
@@ -44,7 +44,42 @@ bool NexusNode::openNexusModell(String url) {
 	return success;
 }
 
-Ref<ArrayMesh> NexusNode::loadNexusNode(int node_index) {
+Ref<Image> recolor_image_with_patch_index(Ref<Image> img, int patch) {
+    // Sicherheitscheck
+    if (img.is_null() || img->is_empty()) {
+        return img;
+    }
+
+    int width = img->get_width();
+    int height = img->get_height();
+
+    
+    float r_mod = (((patch * 97)  % 255)) / 255.0f; 
+    float g_mod = (((patch * 181) % 255)) / 255.0f;
+    float b_mod = (((patch * 43)  % 255)) / 255.0f;
+
+    // // Zusätzliche Variation mit Sinus (macht fließendere Übergänge)
+    // r_mod = fmod(r_mod + 0.5f * (sinf(patch * 0.7f) + 1.0f) / 2.0f, 1.0f);
+    // g_mod = fmod(g_mod + 0.5f * (sinf(patch * 1.3f) + 1.0f) / 2.0f, 1.0f);
+    // b_mod = fmod(b_mod + 0.5f * (sinf(patch * 2.1f) + 1.0f) / 2.0f, 1.0f);
+
+    for (int y = 0; y < height; y++) {
+        for (int x = 0; x < width; x++) {
+            Color col = img->get_pixel(x, y);
+
+            // Mischung 50% Original, 50% Node-Farbe
+            col.r = col.r * 0.5f + r_mod * 0.5f;
+            col.g = col.g * 0.5f + g_mod * 0.5f;
+            col.b = col.b * 0.5f + b_mod * 0.5f;
+
+            img->set_pixel(x, y, col);
+        }
+    }
+
+    return img;
+}
+
+Ref<ArrayMesh> NexusNode::loadNexusNode(int node_index, Dictionary options) {
 	UtilityFunctions::print("LOADING of Node: ", node_index);
 
 	nexus->loadRam(node_index);
@@ -122,6 +157,7 @@ Ref<ArrayMesh> NexusNode::loadNexusNode(int node_index) {
 
 		int surface_index = mesh->get_surface_count();
 		mesh->add_surface_from_arrays(Mesh::PRIMITIVE_TRIANGLES, arrays);
+		mesh->surface_set_name(surface_index, "patch " + itos(k) + " with child " + itos(patch.node));
 		UtilityFunctions::print("    surface_index: ", surface_index);
 
 		UtilityFunctions::print("    tex_index: ", tex_index);
@@ -162,9 +198,13 @@ Ref<ArrayMesh> NexusNode::loadNexusNode(int node_index) {
 			UtilityFunctions::print("    image_jpg->get_width(): ", image->get_width());
 			UtilityFunctions::print("    image_jpg->get_height(): ", image->get_height());
 
+			// image = image->load_from_file("res://nexus_texture_" + itos(tex_index) + "_from_image.jpg");
 			// image->save_jpg("res://nexus_texture_" + itos(tex_index) + "_from_image.jpg");
 
-			// image = image->load_from_file("res://nexus_texture_" + itos(tex_index) + "_from_image.jpg");
+			if (options.get("colored_patches", false))
+			{
+				image = recolor_image_with_patch_index(image, k);
+			}			
 
 			Ref<ImageTexture> texture;
 			// texture.instantiate();
