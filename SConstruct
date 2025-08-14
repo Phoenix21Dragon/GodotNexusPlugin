@@ -21,8 +21,6 @@ env.Append(CPPPATH=["src",
                     "src/vcglib",
                     "src/vcglib/eigenlib",
                     "src/corto/include",
-                    # "/usr/include/x86_64-linux-gnu/qt5/QtCore",
-                    # "/usr/include/x86_64-linux-gnu/qt5"
                     ])
 env.Append(CXXFLAGS=["-fexceptions"])
 # sources = Glob("src/*.cpp")
@@ -30,11 +28,6 @@ sources = (Glob("src/*.cpp") +
            Glob("src/nexus/src/common/nexus.cpp",) + 
            Glob("src/nexus/src/common/nexusdata.cpp",) +
            Glob("src/nexus/src/common/qtnexusfile.cpp",) +
-        #    Glob("src/nexus/src/common/controller.cpp",) +
-        #    Glob("src/nexus/src/nxsbuild/*.cpp") +
-        #    Glob("src/nexus/src/nxsedit/*.cpp") +
-        #    Glob("src/nexus/src/nxsview/*.cpp") +
-        #    Glob("src/nexus/src/nxszip/*.cpp") +
            Glob("src/vcglib/*.cpp") + 
            Glob("src/corto/src/*.cpp"))
 
