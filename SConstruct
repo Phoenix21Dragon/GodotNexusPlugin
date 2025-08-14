@@ -14,13 +14,13 @@ env = SConscript("godot-cpp/SConstruct")
 
 # tweak this if you want to use different folders, or more folders, to store your source code in.
 env.Append(CPPPATH=["src",
+                    "src/corto/include/corto",
                     "src/nexus/src/common",
                     "src/nexus/src/nxsbuild",
                     "src/nexus/src/nxszip",
                     "src/vcglib",
                     "src/vcglib/eigenlib",
                     "src/corto/include",
-                    "src/corto/include/corto",
                     # "/usr/include/x86_64-linux-gnu/qt5/QtCore",
                     # "/usr/include/x86_64-linux-gnu/qt5"
                     ])
@@ -36,7 +36,7 @@ sources = (Glob("src/*.cpp") +
         #    Glob("src/nexus/src/nxsview/*.cpp") +
         #    Glob("src/nexus/src/nxszip/*.cpp") +
            Glob("src/vcglib/*.cpp") + 
-           Glob("src/corto/*.cpp"))
+           Glob("src/corto/src/*.cpp"))
 
 
 if env["platform"] == "macos":
