@@ -35,6 +35,7 @@ env.Append(CPPPATH=[
                     "src/vcglib/eigenlib",
                     ])
 env.Append(CXXFLAGS=["-fexceptions"])
+env.Append(CXXFLAGS=['-w'])
 # sources = Glob("src/*.cpp")
 sources = (
     Glob("src/*.cpp") + 
