@@ -23,7 +23,10 @@
 using namespace godot;
 
 void NexusNode::_bind_methods() {
-	ClassDB::bind_method(D_METHOD("init", "url", "options"), &NexusNode::init);
+	ClassDB::bind_method(D_METHOD("get_url"), &NexusNode::get_url);
+	ClassDB::bind_method(D_METHOD("set_url", "p_url"), &NexusNode::set_url);
+	ADD_PROPERTY(PropertyInfo(Variant::STRING, "url"), "set_url", "get_url");
+	
 	ClassDB::bind_method(D_METHOD("openNexusModell", "url"), &NexusNode::openNexusModell);
 	ClassDB::bind_method(D_METHOD("loadNexusNode", "node_index"), &NexusNode::loadNexusNode);
 }
@@ -36,37 +39,16 @@ NexusNode::~NexusNode() {
 	// Add your cleanup here.
 }
 
+void NexusNode::_ready() {
+
+}
+
 void NexusNode::_process(double delta) {
-	// only selected code from GLNxsview::paintEvent()
-
-	scene.update();
-
-	renderer.startFrame();
-
-	for(unsigned int i = 0; i < scene.nodes.size(); i++) {
-		Scene::Node &node = scene.nodes[i];
-
-		renderer.render(node.nexus, extracting);
-	}
-
-	if(extracting)
-		renderer.endFrame();
+	
 }
 
 void NexusNode::init(String url, Dictionary options){
-	url = url.replace("res:/", ".");
-	
-	scene.autopositioning = (bool)options.get("autopositioning", false);
-	scene.load(QStringList(QString::fromUtf8(url.utf8().get_data())), (int)options.get("instances", 1));
 
-	nx::Controller &controller = scene.controller;
-	controller.setRam((quint64)((uint64_t)options.get("ram", 500.0)*(1<<20)));	
-	controller.setGpu((quint64)((uint64_t)options.get("gpu", 500.0)*(1<<20)));	
-	controller.start();
-
-	renderer.setMaxPrimitives((int)((double)options.get("max_number_triangles", 3.0)*(1<<20)));
-	renderer.setError((float)((double)options.get("target_error", 3.0)));
-	renderer.setFps((float)((double)options.get("fps", 30.0)));
 }
 
 bool NexusNode::openNexusModell(String url) {
@@ -225,3 +207,10 @@ Ref<ArrayMesh> NexusNode::loadNexusNode(int node_index) {
 	return mesh;
 }
 
+String NexusNode::get_url() const {
+	return url;
+}
+
+void NexusNode::set_url(const String p_url) {
+	url = p_url;
+}

@@ -1,19 +1,16 @@
-#include <godot_cpp/classes/node3d.hpp>
-#include <godot_cpp/classes/array_mesh.hpp>
+#include <godot_cpp/classes/mesh_instance3d.hpp>
+// #include <godot_cpp/classes/array_mesh.hpp>
 #include "nexus.h"
-#include "renderer.h"
-#include "scene.h"
 
 namespace godot {
 
-class NexusNode : public Node3D {
-	GDCLASS(NexusNode, Node3D)
+class NexusNode : public MeshInstance3D {
+	GDCLASS(NexusNode, MeshInstance3D)
 
 private:
 
 	nx::Nexus* nexus;
-	nx::Renderer renderer;
-	Scene scene;
+	String url;
 
 protected:
 	static void _bind_methods();
@@ -26,7 +23,12 @@ public:
     bool openNexusModell(String url);
 	Ref<ArrayMesh> loadNexusNode(int node_index);
 
+	void _ready() override;
 	void _process(double delta) override;
+
+	String get_url() const;
+	void set_url(const String p_url);
+
 };
 
 }
