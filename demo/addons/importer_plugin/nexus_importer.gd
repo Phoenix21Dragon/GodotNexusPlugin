@@ -14,8 +14,6 @@ var n_textures: int
 var sphere_center: Vector3
 var sphere_radius: float
 
-var nexus_node : NexusNode = NexusNode.new()
-
 func _get_import_order():
 	return 0
 
@@ -23,7 +21,7 @@ func _get_priority():
 	return 1.0
 
 func _get_importer_name():
-	return "demos.nexusmodell"
+	return "nexusmodell"
 	
 func _get_visible_name():
 	return "Nexus Modell"
@@ -52,44 +50,10 @@ func _get_import_options(path, preset_index):
 		Presets.DEFAULT:
 			return [
 				{
-				   "name": "max_number_triangles",
-				   "default_value": 3.0,
-					"property_hint": PROPERTY_HINT_RANGE, 
-				   "hint_string": "0.5,15.0,0.5"
-				},
-				{
-				   "name": "target_error",
-				   "default_value": 3.0,
-					"property_hint": PROPERTY_HINT_RANGE, 
-				   "hint_string": "1,50,1"
-				},
-				{
-				   "name": "ram",
-				   "default_value": 500.0,
-					"property_hint": PROPERTY_HINT_RANGE, 
-				   "hint_string": "100,10000,100"
-				},
-				{
-				   "name": "gpu",
-				   "default_value": 500.0,
-					"property_hint": PROPERTY_HINT_RANGE, 
-				   "hint_string": "100,10000,100"
-				},
-				{
-				   "name": "fps",
-				   "default_value": 30.0,
-					"property_hint": PROPERTY_HINT_RANGE, 
-				   "hint_string": "30.0,120.0,5"
-				},
-				{
 				   "name": "instances",
 				   "default_value": 1,
 					"property_hint": PROPERTY_HINT_RANGE, 
-				   "hint_string": "1,5,1"
-				},
-				{
-				   "name": "autopositioning",
-				   "default_value": false,
+				   "hint_string": "1, 10, 1"
 				}
 			]
 		_:
@@ -99,8 +63,12 @@ func _get_option_visibility(path, option_name, options):
 	return true
 
 func _import(source_file, save_path, options, r_platform_variants, r_gen_files):
-
-	nexus_node.init(source_file, options)
+	
+	var nexus_node : NexusNode = NexusNode.new()	
+	nexus_node.name = "Nexus"
+	nexus_node.url = source_file
+	
+	# nexus_node.init(source_file, options)
 
 	# ########## Read nxs File with Nexus C++ Code ##########	
 
@@ -110,6 +78,7 @@ func _import(source_file, save_path, options, r_platform_variants, r_gen_files):
 	# # Neue Szene erzeugen mit Node3D als Root
 	# var root := nexus_node
 	# root.name = "ImportedNexusModel"
+	#nexus_node.name = "ImportedNexusModel"
 
 	# for node in range(0, 2):
 		
@@ -125,14 +94,15 @@ func _import(source_file, save_path, options, r_platform_variants, r_gen_files):
 	# 	root.add_child(mesh_instance)
 	# 	mesh_instance.owner = root  # Wichtig für PackedScene
 
-	# # Szene packen und speichern
-	# var scene := PackedScene.new()
-	# scene.pack(root)
-
-	# var save_result := ResourceSaver.save(scene, "%s.%s" % [save_path, _get_save_extension()])
-	# if save_result != OK:
-	# 	push_error("Konnte Szene nicht speichern: %s" % save_result)
-	# return save_result
+	# Szene packen und speichern
+	var scene := PackedScene.new()
+	## scene.pack(root)
+	scene.pack(nexus_node)
+#
+	var save_result := ResourceSaver.save(scene, "%s.%s" % [save_path, _get_save_extension()])
+	if save_result != OK:
+		push_error("Konnte Szene nicht speichern: %s" % save_result)
+	return save_result
 
 func read_header(file: FileAccess) -> void:
 	print("Read Header")
