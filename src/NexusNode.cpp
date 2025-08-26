@@ -108,7 +108,7 @@ Ref<ArrayMesh> NexusNode::loadNexusNode(int node_index) {
 
 
 	// UtilityFunctions::print("\nLOAD GEOMETRY");	
-	uint32_t offset = node.offset;
+	uint32_t offset = 0;
 	for (uint32_t k = node.first_patch; k < node.last_patch(); k++) {
 		nx::Patch& patch = nexus->patches[k];
 		uint32_t tex_index = patch.texture;
