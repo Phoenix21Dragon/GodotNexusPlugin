@@ -116,23 +116,6 @@ void NexusCamera::_process(double delta) {
 
 	renderer.startFrame();
 
-	// for(unsigned int i = 0; i < scene.nodes.size(); i++) {
-	// 	Scene::Node &node = scene.nodes[i];
-	// 	renderer.update_camera_data(this);
-	// 	Ref<ArrayMesh> mesh = renderer.render(node.nexus, extracting);
-
-	// 	if (!mesh.is_valid() || mesh.is_null()) continue;
-		
-	// 	Node *child = get_child(i);
-    //     	if (NexusNode *nexus_node = Object::cast_to<NexusNode>(child)) {
-	// 			// MeshInstance3D *meshInstance = memnew(MeshInstance3D);
-	// 			// meshInstance->set_mesh(mesh);
-	// 			// nexus_node->add_child(meshInstance);
-
-	// 			nexus_node->set_mesh(mesh);
-	// 		}
-	// }
-
 	for(unsigned int i = 0; i < nexus_nodes.size(); i++) {
 		Scene::Node &node = scene.nodes[i];
 		renderer.update_camera_data(this);
