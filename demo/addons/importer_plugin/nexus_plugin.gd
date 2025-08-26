@@ -6,7 +6,7 @@ var import_plugin
 
 
 func _enter_tree():
-	import_plugin = preload("res://addons/importer_plugin/import_plugin.gd").new()
+	import_plugin = preload("res://addons/importer_plugin/nexus_importer.gd").new()
 	add_import_plugin(import_plugin)
 
 

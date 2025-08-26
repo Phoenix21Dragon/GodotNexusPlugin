@@ -14,7 +14,6 @@ var n_textures: int
 var sphere_center: Vector3
 var sphere_radius: float
 
-var nexus_node : NexusNode = NexusNode.new()
 
 func _get_import_order():
 	return 0
@@ -53,6 +52,14 @@ func _get_import_options(path, preset_index):
 			return [{
 					   "name": "colored_patches",
 					   "default_value": false
+					},
+					{
+						"name": "start_node",
+						"default_value": 0
+					},
+					{
+						"name": "stop_node",
+						"default_value": 10
 					}]
 		_:
 			return []
@@ -64,6 +71,7 @@ func _import(source_file, save_path, options, r_platform_variants, r_gen_files):
 
 	########## Read nxs File with Nexus C++ Code ##########	
 
+	var nexus_node : NexusNode = NexusNode.new()
 	var success = nexus_node.openNexusModell(source_file)
 	print("success open: ", success)
 
@@ -71,7 +79,8 @@ func _import(source_file, save_path, options, r_platform_variants, r_gen_files):
 	var root := nexus_node
 	root.name = "ImportedNexusModel"
 
-	for node in range(0, 10):
+	for node in range(options["start_node"], options["stop_node"]):
+	# for node in range(0, 10):
 		
 		var mesh = nexus_node.loadNexusNode(node, options)
 
