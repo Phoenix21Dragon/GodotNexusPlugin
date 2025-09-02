@@ -1,4 +1,5 @@
 .venv/
+html_01/
 html/
 *.so
 *.uid
