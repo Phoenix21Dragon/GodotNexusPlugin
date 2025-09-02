@@ -112,7 +112,7 @@ void NexusCamera::_process(double delta) {
 	
 	// scene.update();
 
-	// if (renderer.frame > 4) return;
+	if (renderer.frame > 15) return;
 
 	renderer.startFrame();
 
@@ -136,13 +136,14 @@ void NexusCamera::_process(double delta) {
 	if(extracting)
 		renderer.endFrame();
 
-	UtilityFunctions::print("number of rendered nodes: ", renderer.stats.node_rendered);  
-	UtilityFunctions::prints("rendered nodes: ");
+	// UtilityFunctions::print("number of rendered nodes: ", renderer.stats.node_rendered);  
+	String print = "rendered nodes: ";
 	for (size_t i = 0; i < renderer.selected.size(); i++)
 	{
 		if ((renderer.selected[i] == true) && (renderer.skipNode(i) == false)) 
-			UtilityFunctions::print("  ", i);
+			print += itos(i) + ", ";
 	}
+	UtilityFunctions::print(print);
 }
 
    
